@@ -3,7 +3,7 @@ entity cont_bcd is
 		clk_i : in bit;
 		rst_i : in bit;
 		ena_i : in bit;
-		q_o : out bit_vector(3 downto 0)
+		q_o : out bit_vector(3 downto 0) -- 4 Bits de salida del contador BCD
 		);
 	end;
 
