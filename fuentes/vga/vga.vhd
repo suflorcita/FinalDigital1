@@ -14,15 +14,15 @@ entity vga is
 		ena_in : in bit;
 		
 		-- Salidas--
-		red_o: in bit; 
-		grn_o: in bit; 
-		blu_o: in bit; 
+		red_o: out bit; 
+		grn_o: out bit; 
+		blu_o: out bit; 
 		
 		hsync_out_vga: out bit; -- Señal de sincronismo horizontal
 		vsync_out_vga: out bit; -- Señal de sincronismo vertical
 		
 		pixel_x: out bit_vector(9 downto 0); -- posición del pixel en y
-		pixel_y: out bit_vector(9 downto 0); -- posición del pixel en x
+		pixel_y: out bit_vector(9 downto 0) -- posición del pixel en x
 		
 		
 		);
@@ -63,8 +63,8 @@ begin
 		port map(
 			-- Entradas--
 			clk_in => clk_in,
-			rst_in  => clk_in,
-			ena_in  => clk_in,
+			rst_in  => rst_in,
+			ena_in  => ena_in,
 			
 			-- Salidas--
 			vidon => vidon_aux, -- Se activa cuando los dos vidones estan on
@@ -75,13 +75,13 @@ begin
 			
 			-- Estas salidas las dejo para chequear
 			hvidon => hvidon_aux, -- Se activa cuando está en on el vidon el hvidon
-			vvidon  => vvidon_aux, -- Se activa cuando está en on el vidon el vvidon
+			vvidon  => vvidon_aux -- Se activa cuando está en on el vidon el vvidon
 		); 
 	
 	
 		
-	red_o 	<= red_i and vidon;
-	green_o <= green_i and vidon;
-	blue_o <= blue_i and vidon;
+	red_o 	<= red_i and vidon_aux;
+	grn_o <= grn_i and vidon_aux;
+	blu_o <= blu_i and vidon_aux;
 	
 end;  

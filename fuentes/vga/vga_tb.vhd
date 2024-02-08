@@ -18,15 +18,15 @@ architecture vga_tb_arq of vga_tb is
 		ena_in : in bit;
 		
 		-- Salidas--
-		red_o: in bit; 
-		grn_o: in bit; 
-		blu_o: in bit; 
+		red_o: out bit; 
+		grn_o: out bit; 
+		blu_o: out bit; 
 		
 		hsync_out_vga: out bit; -- Señal de sincronismo horizontal
 		vsync_out_vga: out bit; -- Señal de sincronismo vertical
 		
 		pixel_x: out bit_vector(9 downto 0); -- posición del pixel en y
-		pixel_y: out bit_vector(9 downto 0); -- posición del pixel en x
+		pixel_y: out bit_vector(9 downto 0) -- posición del pixel en x
 		
 		);
 	end component;
@@ -47,21 +47,19 @@ architecture vga_tb_arq of vga_tb is
     signal blu_o_tb : bit;
    
     signal hsync_out_vga_tb: bit;
-    signal vsync_out_va_tb: bit;
+    signal vsync_out_vga_tb: bit;
     
     signal pixel_x_tb: bit_vector(9 downto 0); 
     signal pixel_y_tb: bit_vector(9 downto 0);
 
-	
-    -- Entradas -
-   
+
     
 begin
     clk_tb <= not clk_tb after 10 ns; -- Reloj
     
-    rom_out_tb <=  1 after 50 ns, 0 after 100 ns; -- Si es 1 es cómo si hubiese un dígito en la pantalla. Con estos tiempos cae en la zona visible
+    rom_out_tb <=  '1' after 50 ns, '0' after 100 ns; -- Si es 1 es cómo si hubiese un dígito en la pantalla. Con estos tiempos cae en la zona visible
 
-    DUT : gensinc
+    DUT : vga
         port map (
         	-- Entradas--
 		-- Colores --
