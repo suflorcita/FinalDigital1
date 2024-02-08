@@ -5,6 +5,3 @@ ghdl -e cont_bcd_n_tb
 ghdl -r cont_bcd_n_tb --vcd=cont_bcd_n_tb.vcd --stop-time=500000ns
 gtkwave cont_bcd_n_tb.vcd
 
-
-
-
