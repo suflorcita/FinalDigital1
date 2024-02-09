@@ -8,7 +8,7 @@ entity mux is
 		digito1: in bit_vector(3 downto 0); -- Este es el primer dígito (4 bits: del 0 al 9, Es lo que sale del registro)
 		digito2: in bit_vector(3 downto 0); -- Segundo dígito (Decimal)
 		digito3: in bit_vector(3 downto 0); -- Tercer dígito (Centesima)
-		
+			
 		-- Caracteres--
 --		punto: in bit_vector(3 downto 0); -- El punto. Le vamos asignar el valor 10d (1010b)
 --		letra_v: in bit_vector(3 downto 0); -- La letra V de Volts. Le vamos asignar el valor 11d (1011b)

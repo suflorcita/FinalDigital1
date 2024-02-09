@@ -22,8 +22,8 @@ architecture logica_tb_arq of logica_tb is
 	
 	
 	-- Caracteres
-	signal pixel_x_tb : bit_vector(9 downto 0):= "0000111000";
-	signal pixel_y_tb : bit_vector(9 downto 0):= "0000111000";
+	signal pixel_x_tb : bit_vector(9 downto 0):= "0000000000"; -- 0: Columna 1 
+	signal pixel_y_tb : bit_vector(9 downto 0):= "0010000001"; -- 129: Fila 2 
 	signal sel_mux_tb : bit_vector(2 downto 0);
 	signal font_row_tb : bit_vector(2 downto 0); 
 	signal font_col_tb : bit_vector(2 downto 0);
@@ -32,6 +32,11 @@ architecture logica_tb_arq of logica_tb is
 	
 begin
     clk_tb <= not clk_tb after 20 ns;
+    
+    pixel_x_tb <= "0010000001" after 200 ns, "0100000001"after 400 ns, "0110000001" after 600 ns, "1000000001" after 800 ns;  
+    pixel_y_tb <= "0000000000" after 1000 ns, "0100000001" after 1200 ns, "0110000001" after 1400 ns ; --- Fila 1, 3 y 4
+    -- 129, 257, 385, 513
+    -- Fila 1: blanco 
     
     DUT : logica
         port map (

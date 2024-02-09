@@ -33,6 +33,8 @@ architecture logica_arq of logica is
 	signal d2: bit; -- Digito 2
 	signal d3: bit; -- Digito 3	
 	signal volt: bit; -- volt
+	signal blanco: bit; -- espacio en blanco
+	
 	
 	-- Selector auxiliar
 	signal sel_aux: bit_vector(2 downto 0); 
@@ -41,11 +43,11 @@ begin
 	fila_2 <= (not pixel_y(9)) and (not pixel_y(8)) and pixel_y(7);  
 	
 	--- Columnas
-	col_1 <= (not pixel_x(9)) and (not pixel_x(8)) and (not pixel_y(7)); --000
-	col_2 <= (not pixel_x(9)) and (not pixel_x(8)) and pixel_y(7);  --001
-	col_3 <= (not pixel_x(9)) and pixel_x(8) and (not pixel_y(7)); --010
+	col_1 <= (not pixel_x(9)) and (not pixel_x(8)) and (not pixel_x(7)); --000
+	col_2 <= (not pixel_x(9)) and (not pixel_x(8)) and pixel_x(7);  --001
+	col_3 <= (not pixel_x(9)) and pixel_x(8) and (not pixel_x(7)); --010
 	col_4 <= (not pixel_x(9)) and pixel_x(8) and  pixel_x(7); --011
-	col_5 <= (not pixel_x(9)) and pixel_x(8) and (not pixel_x(7)); --100
+	col_5 <= (pixel_x(9)) and (not pixel_x(8)) and (not pixel_x(7)); --100
 	
 	-- Matcheo cada cuadrado de 128 x 128 con un caracter
 	d1 <= fila_2 and col_1; 
@@ -54,14 +56,19 @@ begin
 	d3 <= fila_2 and col_4;
 	volt <= fila_2 and col_5;
 	
-	-- Selectores del mux (hice tabla de verdad)
-	sel_aux(0) <= ((not d1) and punto and (not d2) and (not d3) and (not volt)) or  
-			((not d1) and (not punto) and (not d2) and d3 and (not  volt)); 
+	--- Si no esta en la fila 2 es un blanco (que es el 12d del mux) 
+	blanco <= not fila_2; 
 	
-	sel_aux(1) <= ((not d1) and (not punto) and d2 and (not d3) and (not volt)) or  
-			((not d1) and (not punto) and (not d2) and d3 and (not volt)); 
+	-- Selectores del mux (hice tabla de verdad), Al principio no considere el blanco pero despues lo hice teniendo en cuenta el blanco 
+	sel_aux(0) <= ((not blanco) and (not d1) and punto and (not d2) and (not d3) and (not volt)) or  
+			((not blanco) and (not d1) and (not punto) and d2 and (not d3) and (not  volt)) or 
+			(blanco and (not d1) and (not punto) and (not d2) and (not d3) and (not  volt)); 
 	
-	sel_aux(2) <= ((not d1) and (not punto) and (not d2) and (not d3) and volt);
+	sel_aux(1) <= ((not blanco) and (not d1) and (punto) and (not d2) and (not d3) and (not volt)) or  
+			((not blanco) and (not d1) and (not punto) and (not d2) and d3 and (not volt)); 
+	
+	sel_aux(2) <= ((not blanco) and (not d1) and (not punto) and (not d2) and (not d3) and volt) or
+			(blanco and (not d1) and (not punto) and (not d2) and (not d3) and (not  volt)) ;
 	
 	sel_mux <= sel_aux; 
 	
