@@ -1,15 +1,12 @@
 -- Sol Ayelen Cataldo 
--- Contador binario que va hasta 33k
+-- Contador binario que va hasta 33k (16 bits)
 
 entity cont_bin_33k is
-	generic (
-		N: natural := 16  -- Cantidad de bits
-	);
 	port(
 		clk_in : in bit;
 		rst_in : in bit;
 		ena_in : in bit;
-		q_o : out bit_vector(N -1 downto 0); -- Salida del contador binario 
+		q_o : out bit_vector(15 downto 0); -- Salida del contador binario 
 		rst_o : out bit; 	-- Salida que va hacia el reset del contador BCD
 		ena_o : out bit	-- Salida que va hacia el enable del registro
 		);
@@ -30,7 +27,7 @@ architecture cont_bin_33k_arq of cont_bin_33k is
 	end component;
 	
 	-- Señales
-	signal q : bit_vector(N - 1 downto 0); -- Señal auxiliar para la salida del contador 
+	signal q : bit_vector(15 downto 0); -- Señal auxiliar para la salida del contador 
 	signal aux_33k: bit; -- Flag auxiliar que se activa cuando llega a 33k
 	
 	

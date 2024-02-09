@@ -2,15 +2,12 @@
 -- Registro de 4 bits
 
 entity registro_4bits is
-	generic (
-		N: natural := 4 -- Registro de 4 bits
-	);
 	port(
 		clk_in : in bit;
 		rst_in : in bit;
 		ena_in : in bit;
-		d_in : in bit_vector(N-1 downto 0); -- Entrada del registro 
-		q_out : out bit_vector(N-1 downto 0) -- Salida del registro
+		d_in : in bit_vector(3 downto 0); -- Entrada del registro 
+		q_out : out bit_vector(3 downto 0) -- Salida del registro
 		);
 	end;
 
@@ -24,12 +21,12 @@ architecture registro_4bits_arq of registro_4bits is
 			clk_in : in bit;
 			rst_in : in bit;
 			ena_in : in bit;
-			d_in : in bit_vector(N-1 downto 0); -- Entrada del registro 
-			q_out : out bit_vector(N-1 downto 0) -- Salida del registro
+			d_in : in bit_vector(3 downto 0); -- Entrada del registro 
+			q_out : out bit_vector(3 downto 0) -- Salida del registro
 			 ); 
 	end component;
 	
-	signal q_ffd : bit_vector(N-1 downto 0); -- Señal temporal para almacenar la salidas de los ffd
+	signal q_ffd : bit_vector(3 downto 0); -- Señal temporal para almacenar la salidas de los ffd
 
 	
 begin 

@@ -8,15 +8,12 @@ architecture registro_4bits_tb_arq of registro_4bits_tb is
 
     -- Componentes
     component registro_4bits is
-    	generic (
-		N: natural := 4  -- 4 bits del registro
-	);
 	port(
 		clk_in : in bit;
 		rst_in : in bit;
 		ena_in : in bit;
-		d_in : in bit_vector(N -1 downto 0); -- Entrada del registro 
-		q_out : out bit_vector(N -1 downto 0) -- Salida del registro
+		d_in : in bit_vector(3 downto 0); -- Entrada del registro 
+		q_out : out bit_vector(3 downto 0) -- Salida del registro
 	);
     end component;
 

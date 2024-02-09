@@ -2,14 +2,11 @@
 -- Contador De 1s: Los 5 contadores BCD en cascada 
 
 entity cont_bcd_n is
-	generic(
-		N: natural := 5 -- Cantidad de salidas del contador BCD (3)
-	);
 	port(
 		clk_i : in bit;
 		rst_i : in bit;
 		ena_i : in bit;
-		q_o : out bit_vector(N*4 - 1 downto 0) -- Los bits de salida 
+		q_o : out bit_vector(19 downto 0) -- Los bits de salida 
 		);
 	end;
 
@@ -24,7 +21,7 @@ architecture cont_bcd_n_arq of cont_bcd_n is
 			);
 	end component;
 	
-	signal enable_aux: bit_vector(N downto 0); -- Son los habilitadores de cada contador
+	signal enable_aux: bit_vector(4 downto 0); -- Son los habilitadores de cada contador
 	signal q_aux0: bit_vector(3 downto 0); -- Las salidas de cada contador
 	signal q_aux1: bit_vector(3 downto 0); 
 	signal q_aux2: bit_vector(3 downto 0); 

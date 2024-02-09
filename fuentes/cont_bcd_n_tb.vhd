@@ -2,7 +2,6 @@ entity cont_bcd_n_tb is
 end;
 
 architecture cont_bcd_n_tb_arq of cont_bcd_n_tb is
-    constant N: natural := 5;  -- Cantidad de contadores BCD
     
     -- Componentes
     component cont_bcd_n is
@@ -10,7 +9,7 @@ architecture cont_bcd_n_tb_arq of cont_bcd_n_tb is
             clk_i : in bit;
             rst_i : in bit;
             ena_i : in bit;
-            q_o : out bit_vector(N*4 - 1 downto 0) -- Los bits de salida 
+            q_o : out bit_vector(19 downto 0) -- Los bits de salida 
         );
     end component;
     
@@ -18,7 +17,7 @@ architecture cont_bcd_n_tb_arq of cont_bcd_n_tb is
     signal clk_tb: bit := '1';
     signal rst_tb: bit := '0';
     signal ena_tb: bit := '1';
-    signal q_tb: bit_vector (N*4 - 1 downto 0);
+    signal q_tb: bit_vector (19 downto 0);
     
 begin
     clk_tb <= not clk_tb after 5 ns;
