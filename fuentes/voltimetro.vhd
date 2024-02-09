@@ -5,6 +5,14 @@ entity voltimetro is
 	 	clk_i : in bit;
 		rst_i : in bit;
 		ena_i : in bit;
+		
+		
+		--- Salidas 
+		hs: out bit; -- Sincronismo horizontal
+		vs: out bit; -- Sincronismo vertical
+		red_o: out bit; -- Rojo
+		grn_o: out bit; -- Verde
+		blu_o: out bit
 	); 
 end entity voltimetro;
 
@@ -51,9 +59,9 @@ architecture voltimetro_arq of voltimetro is
 		port(
 			-- Entradas --
 			-- Dígitos --
-			digito1: in bit_vector(3 downto 0); -- Este es el primer dígito (4 bits: del 0 al 9, Es lo que sale del registro)
-			digito2: in bit_vector(3 downto 0); -- Segundo dígito (Decimal)
-			digito3: in bit_vector(3 downto 0); -- Tercer dígito (Centesima)
+			digito_2: in bit_vector(3 downto 0); -- Este es el primer dígito (4 bits: del 0 al 9, Es lo que sale del registro)
+			digito_1: in bit_vector(3 downto 0); -- Segundo dígito (Decimal)
+			digito_0: in bit_vector(3 downto 0); -- Tercer dígito (Centesima)
 			
 			-- Selector --
 			selector: in bit_vector(2 downto 0); -- Selector de 3 bits porque elige entre 5 entradas. 
@@ -127,6 +135,45 @@ architecture voltimetro_arq of voltimetro is
 	
 	-- Contador BCD
 	signal out_cont_bcd: bit_vector(19 downto 0); 
+	
+	-- Digitos del BCD 
+	-- Contador
+	signal digito_2_bcd: bit_vector(3 downto 0); -- Es el de la unidad. Va a ser los bit 19-18-17 del BCD
+	signal digito_1_bcd: bit_vector(3 downto 0); -- Es el de las decimas.  Va a ser los bit 16-15-14 del BCD
+	signal digito_0_bcd: bit_vector(3 downto 0); -- Es el de las centesimas.  Va a ser los bit 13-12-11 del BCD
+	
+	-- Registro
+	signal digito_2_reg: bit_vector(3 downto 0); -- Es el de la unidad. Va a ser los bit 19-18-17 del BCD
+	signal digito_1_reg: bit_vector(3 downto 0); -- Es el de las decimas.  Va a ser los bit 16-15-14 del BCD
+	signal digito_0_reg: bit_vector(3 downto 0); -- Es el de las centesimas.  Va a ser los bit 13-12-11 del BCD
+	
+	-- Mux 
+	signal salida_mux: bit_vector(3 downto 0); -- Salida del mux que es la entrada a la ROM de caracteres (char_address)
+	
+	-- ROM 
+	signal rom_out_to_vga: bit; 	
+	
+	-- Salidas de la lógica
+	signal selector_logica: bit_vector(2 downto 0); -- Selector para el Mux que sale del bloque de lógica
+	signal font_row_logica: bit_vector(2 downto 0); -- Fila de la ROM 
+	signal font_col_logica: bit_vector(2 downto 0); -- Columna de la ROM 
+	
+	--- Salidas del VGA
+	
+	-- Sincronismos
+	signal hs_aux: bit; -- Sincronismo horizontal auxiliar VGA
+	signal vs_aux: bit; -- Sincronismo vertical auxiliar VGA
+	
+	-- Colores
+	signal red_o_aux: bit; -- Rojo
+	signal grn_o_aux: bit; -- Verde
+	signal blu_o_aux: bit -- Verde
+	
+	-- Posición de píxeles
+	signal pixel_x_vga: bit_vector(9 downto 0);
+	signal pixel_y_vga: bit_vector(9 downto 0);
+
+	
 begin
 	-- Mapeo los componentes
 	
@@ -152,26 +199,109 @@ begin
 			q_o => out_cont_bcd-- Los bits de salida 
 		);
 	
-	-- Bloque Registro
-	component registro_4bits is
-    		port(
-			clk_in : in bit;
-			rst_in : in bit;
-			ena_in : in bit;
-			d_in : in bit_vector(3 downto 0); -- Entrada del registro 
-			q_out : out bit_vector(3 downto 0) -- Salida del registro
-		);
-	end component;
-	
-	-- Registro
-    	bloque_registro: registro_4bits
-    		port(
+
+	-- Hago 3 registro de 4 bits
+	-- Bit 2 - Unidad 
+    	registro_bit_2: registro_4bits
+    		port map(
 			clk_in => clk_i,
 			rst_in => rst_i,
 			ena_in => ena_i,
-			d_in => out_cont_bcd-- Los bits de salida 
+			d_in => digito_2_bcd, 
+			q_out => digito_2_reg 
 		);
+		
+	-- Bit 1 - Decima
+    	registro_bit_1: registro_4bits
+    		port map(
+			clk_in => clk_i,
+			rst_in => rst_i,
+			ena_in => ena_i,
+			d_in => digito_1_bcd, 
+			q_out => digito_1_reg 
+		);
+		
+	
+	-- Bit 0 - Céntima 
+    	registro_bit_0: registro_4bits
+    		port map(
+			clk_in => clk_i,
+			rst_in => rst_i,
+			ena_in => ena_i,
+			d_in => digito_0_bcd, 
+			q_out => digito_0_reg 
+		);
+		
+	
+	-- Multiplexor
+    	bloque_mux: mux
+    		port map(
+			digito_2 => digito_2_reg,
+			digito_1 => digito_1_reg,
+			digito_0 => digito_0_reg,
+			selector => selector_logica, 
+			mux_out => salida_mux
+		);
+		
+		
+	-- ROM
+   	bloque_rom: rom
+    		port map(
+    			char_address => salida_mux, -- Entra la salida del mux (el dígito o caracter)
+    			font_row => font_row_logica,
+    			font_col => font_col_logica,
+    			rom_out => rom_out_to_vga 
+		);
+	
 
-
+    	bloque_logica: logica
+    		port map(
+    			-- Pixeles que salen de la VGA
+    			pixel_x => pixel_x_vga,
+    			pixel_y => pixel_y_vga, 
+    			
+    			-- Salidas de la logica
+    			sel_mux => selector_logica, 
+    			font_row => font_row_logica, 
+    			font_col => font_col_logica, 
+			
+		);
+			
+	
+	
+	-- VGA 
+	bloque_vga: vga
+		port map(
+			red_i => rom_out_to_vga, -- Salida de la ROM de caracteres
+			grn_i => rom_out_to_vga, -- Salida de la ROM de caracteres
+			-- La salida de la ROM determinar si se enciende ademas del azul el rojo y el verde 
+			blu_i => '1', -- Siempre está en uno pues el fondo de pantalla es azul
+			
+			clk_in => clk_i,
+			rs_in => rst_i,
+			ena_in => ena_i,
+			
+			red_o => red_o_aux,
+			grn_o => grn_o_aux,
+			blu_o => blu_o_aux,
+			
+			-- Sincronismos --
+			hsync_out_vga => hs_aux,
+			vsync_out_vga => vs_aux,
+			
+			pixel_x => pixel_x_vga,
+			pixel_y => pixel_y_vga
+		); 	
+		
+		
+	-- Salidas del Voltímetro
+	hs <= hs_aux; 
+	vs <= vs_aux; 
+	
+	red_o <= red_o_aux; 
+	grn_o <= grn_o_aux; 
+	blu_o <= blu_o_aux; 
+	
+	
 	
 end architecture voltimetro_arq;

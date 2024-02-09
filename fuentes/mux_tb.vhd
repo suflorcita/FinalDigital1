@@ -10,9 +10,9 @@ architecture mux_tb_arq of mux_tb is
 		port(
 			-- Entradas --
 			-- Dígitos --
-			digito1: in bit_vector(3 downto 0); -- Este es el primer dígito (4 bits: del 0 al 9, Es lo que sale del registro)
-			digito2: in bit_vector(3 downto 0); -- Segundo dígito (Decimal)
-			digito3: in bit_vector(3 downto 0); -- Tercer dígito (Centesima)
+			digito_2: in bit_vector(3 downto 0); -- Este es el primer dígito (4 bits: del 0 al 9, Es lo que sale del registro)
+			digito_1: in bit_vector(3 downto 0); -- Segundo dígito (Decimal)
+			digito_0: in bit_vector(3 downto 0); -- Tercer dígito (Centesima)
 			
 			-- Caracteres--
 --			punto: in bit_vector(3 downto 0); -- El punto. Le vamos asignar el valor 10d (1010b)
@@ -32,9 +32,9 @@ architecture mux_tb_arq of mux_tb is
 	
 	
 	-- Caracteres
-	signal digito1_tb : bit_vector(3 downto 0) := "0010";
-	signal digito2_tb : bit_vector(3 downto 0) := "0011";
-	signal digito3_tb : bit_vector(3 downto 0) := "0111";
+	signal digito_2_tb : bit_vector(3 downto 0) := "0010";
+	signal digito_1_tb : bit_vector(3 downto 0) := "0011";
+	signal digito_0_tb : bit_vector(3 downto 0) := "0111";
 --	signal punto_tb: bit_vector(3 downto 0):="1010"; 
 --	signal letra_v_tb : bit_vector(3 downto 0) := "1011";
 --	signal blanco_tb : bit_vector(3 downto 0) := "1100";
@@ -56,9 +56,9 @@ begin
 
     DUT : mux
         port map (
-            digito1 => digito1_tb, 
-            digito2 => digito2_tb,
-            digito3 => digito3_tb,
+            digito_2 => digito_2_tb, 
+            digito_1 => digito_1_tb,
+            digito_0 => digito_0_tb,
    --         punto  => punto_tb,
    --         letra_v => letra_v_tb, 
             selector => selector_tb,
