@@ -21,7 +21,7 @@ architecture cont_bcd_n_tb_arq of cont_bcd_n_tb is
     
 begin
     clk_tb <= not clk_tb after 5 ns;
-    
+    ena_tb <= '0' after 200 ns, '1' after 400 ns; 
     DUT: cont_bcd_n
         port map (
             clk_i => clk_tb,

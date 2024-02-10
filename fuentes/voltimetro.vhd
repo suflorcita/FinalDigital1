@@ -4,21 +4,34 @@ entity voltimetro is
 	port(
 	 	clk_i : in bit;
 		rst_i : in bit;
-		ena_i : in bit;
-		
+		ent_unos: in bit;  --- Entrada de unos 
 		
 		--- Salidas 
+		sal_unos: in bit; 
 		hs: out bit; -- Sincronismo horizontal
 		vs: out bit; -- Sincronismo vertical
 		red_o: out bit; -- Rojo
 		grn_o: out bit; -- Verde
-		blu_o: out bit
+		blu_o: out bit  -- Azul
 	); 
 end entity voltimetro;
 
 architecture voltimetro_arq of voltimetro is
 
 	--Declaro los componentes
+	-- Conversor ADC (ffd con retroalimentacion)	
+	component conversorADC
+		port(
+			clk_i	: in bit;  
+			rst_i	: in bit; 
+			ena_i   : in bit;
+			d_i	: in bit;
+			
+			fback_o : out bit; -- Feedback que va a ir negado
+			data_o	: out bit -- Salida que va al bloque de procesamiento s
+		); 
+	end component;
+	
 	-- Contador binario 
     	component cont_bin_33k
 		port(
@@ -128,6 +141,9 @@ architecture voltimetro_arq of voltimetro is
 	end component;
 	
 	--- Señales 
+	-- Conversor ADC 
+	signal fbck_conversor: bit; -- Salida que sirve para darle feedback al conversor
+	
 	-- Contador Binario
 	signal out_cont_bin: bit; -- Salida del contador binario 
 	signal out_rst_cont_bin: bit_vector(15 downto 0);-- Salida del contador binario que resetea al contador BCD
@@ -177,7 +193,20 @@ architecture voltimetro_arq of voltimetro is
 begin
 	-- Mapeo los componentes
 	
-	-- Bloque contador binario
+    	conversorADC: cont_bin_33k
+		port map (
+			clk_i => clk_i,
+			rst_i => rst_i,
+			ena_i => ena_i,
+			
+			d_i =>  -- Salida del contador binario 
+			fback_o => fbck_conversor, 	-- Salida que va hacia el reset del contador BCD
+			ena_o => out_ena_cont_bin	-- Salida que va hacia el enable del registro
+		);
+	
+	
+	
+	-- Bloque contador binario	
 	-- Contador binario 
     	bloque_cont_bin: cont_bin_33k
 		port map (
@@ -206,7 +235,7 @@ begin
     		port map(
 			clk_in => clk_i,
 			rst_in => rst_i,
-			ena_in => ena_i,
+			ena_in => out_ena_cont_bin, -- Se habilita cuando deja de contar
 			d_in => digito_2_bcd, 
 			q_out => digito_2_reg 
 		);
@@ -216,7 +245,7 @@ begin
     		port map(
 			clk_in => clk_i,
 			rst_in => rst_i,
-			ena_in => ena_i,
+			ena_in => out_ena_cont_bin, -- Se habilita cuando deja de contar
 			d_in => digito_1_bcd, 
 			q_out => digito_1_reg 
 		);
@@ -227,7 +256,7 @@ begin
     		port map(
 			clk_in => clk_i,
 			rst_in => rst_i,
-			ena_in => ena_i,
+			ena_in => out_ena_cont_bin, -- Se habilita cuando deja de contar
 			d_in => digito_0_bcd, 
 			q_out => digito_0_reg 
 		);

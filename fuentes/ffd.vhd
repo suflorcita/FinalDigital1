@@ -1,3 +1,6 @@
+-- Sol Ayelen Cataldo
+-- FFD
+
 entity ffd is 
 	port (
 		clk_i : in bit; -- clock
