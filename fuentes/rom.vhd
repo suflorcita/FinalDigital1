@@ -15,7 +15,7 @@ entity rom is
 
 
 architecture rom_arq of rom is
-	type mat_char is array(0 to 95) of bit_vector(0 to 7); -- Es una matriz dónde tengo 12 caracteres de 8 filas cada uno. Es como un vector de vectores de 8. (12*8 = 96)
+	type mat_char is array(0 to 103) of bit_vector(0 to 7); -- Es una matriz dónde tengo 13 caracteres de 8 filas cada uno. Es como un vector de vectores de 8. (12*8 = 96)
 	signal char_address_aux: bit_vector(6 downto 0); -- Fila dónde va a comenzar el caracters
 	
 	constant chars: mat_char:= (  --- Esto son los caracteres

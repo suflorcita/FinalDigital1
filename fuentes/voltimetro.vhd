@@ -1,5 +1,5 @@
 -- Sol Ayelen Cataldo 
--- Voltimetro que es la suma de todos los caracteres
+-- Voltimetro que es la suma de todos los componentes
 entity voltimetro is
 	port(
 	 	clk_i : in bit;
@@ -7,7 +7,7 @@ entity voltimetro is
 		ent_unos: in bit;  --- Entrada de unos 
 		
 		--- Salidas 
-		sal_unos: in bit; 
+		sal_unos: out bit; 
 		hs: out bit; -- Sincronismo horizontal
 		vs: out bit; -- Sincronismo vertical
 		red_o: out bit; -- Rojo
@@ -77,8 +77,8 @@ architecture voltimetro_arq of voltimetro is
 			digito_0: in bit_vector(3 downto 0); -- Tercer dígito (Centesima)
 			
 			-- Selector --
-			selector: in bit_vector(2 downto 0); -- Selector de 3 bits porque elige entre 5 entradas. 
 			
+			selector: in bit_vector(2 downto 0); -- Selector de 3 bits porque elige entre 5 entradas. 
 			-- Salidas --
 			mux_out: out bit_vector(3 downto 0) -- El dígito seleccionado entre todas las entradas
 			
@@ -112,8 +112,8 @@ architecture voltimetro_arq of voltimetro is
 	end component;
 	
 	
-	
 	-- VGA
+	
 	component vga is
 		port(
 			-- Entradas--
@@ -127,8 +127,8 @@ architecture voltimetro_arq of voltimetro is
 			ena_in : in bit;
 			
 			-- Salidas--
-			red_o: out bit; 
 			grn_o: out bit; 
+			red_o: out bit; 
 			blu_o: out bit; 
 			
 			hsync_out_vga: out bit; -- Señal de sincronismo horizontal
@@ -142,11 +142,11 @@ architecture voltimetro_arq of voltimetro is
 	
 	--- Señales 
 	-- Conversor ADC 
-	signal fbck_conversor: bit; -- Salida que sirve para darle feedback al conversor
+	signal out_ena_cont_bcd: bit; -- Salida que sirve para habilitar al contador BCD 
 	
 	-- Contador Binario
-	signal out_cont_bin: bit; -- Salida del contador binario 
-	signal out_rst_cont_bin: bit_vector(15 downto 0);-- Salida del contador binario que resetea al contador BCD
+	signal out_cont_bin: bit_vector(15 downto 0); -- Salida del contador binario 
+	signal out_rst_cont_bin: bit;-- Salida del contador binario que resetea al contador BCD
 	signal out_ena_cont_bin: bit; -- Salida del contador binario que habilita el registro 
 	
 	-- Contador BCD
@@ -183,36 +183,38 @@ architecture voltimetro_arq of voltimetro is
 	-- Colores
 	signal red_o_aux: bit; -- Rojo
 	signal grn_o_aux: bit; -- Verde
-	signal blu_o_aux: bit -- Verde
+	signal blu_o_aux: bit; -- Verde
 	
 	-- Posición de píxeles
 	signal pixel_x_vga: bit_vector(9 downto 0);
 	signal pixel_y_vga: bit_vector(9 downto 0);
-
+	
+	-- Habilitación
+	--signal ena_i: bit:= '1';
 	
 begin
 	-- Mapeo los componentes
 	
-    	conversorADC: cont_bin_33k
+    	bloque_conversorADC: conversorADC
 		port map (
 			clk_i => clk_i,
 			rst_i => rst_i,
-			ena_i => ena_i,
+			ena_i => '1',
 			
-			d_i =>  -- Salida del contador binario 
-			fback_o => fbck_conversor, 	-- Salida que va hacia el reset del contador BCD
-			ena_o => out_ena_cont_bin	-- Salida que va hacia el enable del registro
+			d_i => ent_unos, -- Entrada de los unos 
+			fback_o => sal_unos, 	-- Salida negada que va a dar el feedback
+			data_o => out_ena_cont_bcd	-- Salida que va hacia el enable del contador bcd 
 		);
 	
 	
 	
 	-- Bloque contador binario	
 	-- Contador binario 
-    	bloque_cont_bin: cont_bin_33k
+    	bloque_cont_bin_voltimetro: cont_bin_33k
 		port map (
 			clk_in => clk_i,
 			rst_in => rst_i,
-			ena_in => ena_i,
+			ena_in => '1',
 			q_o => out_cont_bin, -- Salida del contador binario 
 			rst_o => out_rst_cont_bin, 	-- Salida que va hacia el reset del contador BCD
 			ena_o => out_ena_cont_bin	-- Salida que va hacia el enable del registro
@@ -220,15 +222,18 @@ begin
 	
 	-- Bloque contador BCD (de unos)
 	-- Contador binario 
-    	bloque_cont_bcd: cont_bin_33k
+    	bloque_cont_bcd: cont_bcd_n
 		port map (
 			clk_i => clk_i,
-			rst_i => rst_i,
-			ena_i => ena_i,
+			rst_i => out_rst_cont_bin, 
+			ena_i => out_ena_cont_bcd, -- Cuenta cuando hay una señal del conversor
 			q_o => out_cont_bcd-- Los bits de salida 
 		);
 	
-
+	digito_2_bcd <= out_cont_bcd(19) & out_cont_bcd(18) & out_cont_bcd(17) & out_cont_bcd(16);
+	digito_1_bcd <= out_cont_bcd(15) & out_cont_bcd(14) & out_cont_bcd(13) & out_cont_bcd(12);
+	digito_0_bcd <= out_cont_bcd(11) & out_cont_bcd(10) & out_cont_bcd(9) & out_cont_bcd(8);
+	
 	-- Hago 3 registro de 4 bits
 	-- Bit 2 - Unidad 
     	registro_bit_2: registro_4bits
@@ -292,7 +297,7 @@ begin
     			-- Salidas de la logica
     			sel_mux => selector_logica, 
     			font_row => font_row_logica, 
-    			font_col => font_col_logica, 
+    			font_col => font_col_logica
 			
 		);
 			
@@ -307,8 +312,8 @@ begin
 			blu_i => '1', -- Siempre está en uno pues el fondo de pantalla es azul
 			
 			clk_in => clk_i,
-			rs_in => rst_i,
-			ena_in => ena_i,
+			rst_in => rst_i,
+			ena_in => '1',
 			
 			red_o => red_o_aux,
 			grn_o => grn_o_aux,
