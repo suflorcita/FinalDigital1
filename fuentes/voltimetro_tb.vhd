@@ -6,7 +6,7 @@ end entity voltimetro_tb;
 architecture voltimetro_tb_arq of voltimetro_tb is
 	component voltimetro is 
 		port(
-			clk_i : in bit;
+			clk_in : in bit;
 			rst_i : in bit;
 			ent_unos: in bit;  --- Entrada de unos 
 			
@@ -35,7 +35,7 @@ begin
 		
 	dut: voltimetro
 		port map(
-			clk_i => clk_tb,
+			clk_in => clk_tb,
 			rst_i => rst_tb, 
 			ent_unos => '1', 
 			

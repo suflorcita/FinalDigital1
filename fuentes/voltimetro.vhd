@@ -2,7 +2,7 @@
 -- Voltimetro que es la suma de todos los componentes
 entity voltimetro is
 	port(
-	 	clk_i : in bit;
+	 	clk_in : in bit;
 		rst_i : in bit;
 		ent_unos: in bit;  --- Entrada de unos 
 		
@@ -19,6 +19,19 @@ end entity voltimetro;
 architecture voltimetro_arq of voltimetro is
 
 	--Declaro los componentes
+	-- Contador que divide el reloj de entrada 
+	component cont_2bits
+		port(
+			clk_in : in bit;
+			rst_in : in bit;
+			ena_in : in bit;
+			q_o : out bit_vector(1 downto 0) -- Salida del contador binario 
+			);
+	end component;
+	
+	
+	
+	
 	-- Conversor ADC (ffd con retroalimentacion)	
 	component conversorADC
 		port(
@@ -141,6 +154,10 @@ architecture voltimetro_arq of voltimetro is
 	end component;
 	
 	--- Señales 
+	-- Auxiliar para convertir los 100 MHz en 25 MHz 
+	signal clk_aux: bit_vector(1 downto 0); 
+	signal clk_i: bit; 
+	
 	-- Conversor ADC 
 	signal out_ena_cont_bcd: bit; -- Salida que sirve para habilitar al contador BCD 
 	
@@ -195,6 +212,20 @@ architecture voltimetro_arq of voltimetro is
 begin
 	-- Mapeo los componentes
 	
+	-- Contador 2 bits que divide el reloj de la frecuencia de 100 MHz en uno de 25 MHz 	
+	bloque_con2bits: cont_2bits
+		port map (
+			clk_in => clk_i,
+			rst_in => rst_i,
+			ena_in => '1',
+			q_o => clk_aux
+		);
+	
+	clk_i <= clk_aux(1); 
+	
+
+    	
+    	-- Conversor ADC: FFD que está a la entrada
     	bloque_conversorADC: conversorADC
 		port map (
 			clk_i => clk_i,
