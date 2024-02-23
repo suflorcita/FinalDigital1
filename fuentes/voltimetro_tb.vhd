@@ -31,7 +31,7 @@ architecture voltimetro_tb_arq of voltimetro_tb is
 	signal blu_o_tb: bit;
 
 begin
-	clk_tb <= not clk_tb after 10 ns;
+	clk_tb <= not clk_tb after 40 ns;
 		
 	dut: voltimetro
 		port map(

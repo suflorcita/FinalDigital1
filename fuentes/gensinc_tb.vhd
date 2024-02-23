@@ -45,7 +45,7 @@ architecture gensinc_tb_arq of gensinc_tb is
     signal vvidon_tb: bit;
     
 begin
-    clk_tb <= not clk_tb after 10 ns; -- Reloj
+    clk_tb <= not clk_tb after 40 ns; -- Reloj
 
     DUT : gensinc
         port map (

@@ -156,7 +156,7 @@ architecture voltimetro_arq of voltimetro is
 	--- Señales 
 	-- Auxiliar para convertir los 100 MHz en 25 MHz 
 	signal clk_aux: bit_vector(1 downto 0); 
-	signal clk_i: bit; 
+	signal clk_i_aux: bit; 
 	
 	-- Conversor ADC 
 	signal out_ena_cont_bcd: bit; -- Salida que sirve para habilitar al contador BCD 
@@ -215,20 +215,20 @@ begin
 	-- Contador 2 bits que divide el reloj de la frecuencia de 100 MHz en uno de 25 MHz 	
 	bloque_con2bits: cont_2bits
 		port map (
-			clk_in => clk_i,
-			rst_in => rst_i,
+			clk_in => clk_in,
+			rst_in => '0',
 			ena_in => '1',
 			q_o => clk_aux
 		);
 	
-	clk_i <= clk_aux(1); 
+	clk_i_aux <= clk_aux(1); 
 	
 
     	
     	-- Conversor ADC: FFD que está a la entrada
     	bloque_conversorADC: conversorADC
 		port map (
-			clk_i => clk_i,
+			clk_i => clk_i_aux,
 			rst_i => rst_i,
 			ena_i => '1',
 			
@@ -243,7 +243,7 @@ begin
 	-- Contador binario 
     	bloque_cont_bin_voltimetro: cont_bin_33k
 		port map (
-			clk_in => clk_i,
+			clk_in => clk_i_aux,
 			rst_in => rst_i,
 			ena_in => '1',
 			q_o => out_cont_bin, -- Salida del contador binario 
@@ -255,7 +255,7 @@ begin
 	-- Contador binario 
     	bloque_cont_bcd: cont_bcd_n
 		port map (
-			clk_i => clk_i,
+			clk_i => clk_i_aux,
 			rst_i => out_rst_cont_bin, 
 			ena_i => out_ena_cont_bcd, -- Cuenta cuando hay una señal del conversor
 			q_o => out_cont_bcd-- Los bits de salida 
@@ -269,7 +269,7 @@ begin
 	-- Bit 2 - Unidad 
     	registro_bit_2: registro_4bits
     		port map(
-			clk_in => clk_i,
+			clk_in => clk_i_aux,
 			rst_in => rst_i,
 			ena_in => out_ena_cont_bin, -- Se habilita cuando deja de contar
 			d_in => digito_2_bcd, 
@@ -279,7 +279,7 @@ begin
 	-- Bit 1 - Decima
     	registro_bit_1: registro_4bits
     		port map(
-			clk_in => clk_i,
+			clk_in => clk_i_aux,
 			rst_in => rst_i,
 			ena_in => out_ena_cont_bin, -- Se habilita cuando deja de contar
 			d_in => digito_1_bcd, 
@@ -290,7 +290,7 @@ begin
 	-- Bit 0 - Céntima 
     	registro_bit_0: registro_4bits
     		port map(
-			clk_in => clk_i,
+			clk_in => clk_i_aux,
 			rst_in => rst_i,
 			ena_in => out_ena_cont_bin, -- Se habilita cuando deja de contar
 			d_in => digito_0_bcd, 
@@ -342,7 +342,7 @@ begin
 			-- La salida de la ROM determinar si se enciende ademas del azul el rojo y el verde 
 			blu_i => '1', -- Siempre está en uno pues el fondo de pantalla es azul
 			
-			clk_in => clk_i,
+			clk_in => clk_i_aux,
 			rst_in => rst_i,
 			ena_in => '1',
 			
